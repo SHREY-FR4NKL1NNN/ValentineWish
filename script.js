@@ -115,22 +115,22 @@ function moveHeartAway(e) {
     );
     
     // If cursor is close enough, move heart away
-    if (distance < 120) {
+    if (distance < 150) {
         moveCount++;
         
         // Calculate direction away from cursor
         const angle = Math.atan2(heartY - cursorY, heartX - cursorX);
         
-        // Calculate new position
-        let newX = ((heartX + Math.cos(angle) * 80) / rect.width) * 100;
-        let newY = ((heartY + Math.sin(angle) * 80) / rect.height) * 100;
+        // Calculate new position (move further away)
+        let newX = ((heartX + Math.cos(angle) * 120) / rect.width) * 100;
+        let newY = ((heartY + Math.sin(angle) * 120) / rect.height) * 100;
         
         // Keep within bounds (10% to 90%)
         newX = Math.max(10, Math.min(90, newX));
         newY = Math.max(10, Math.min(90, newY));
         
-        // After 5 moves, make it easier to catch
-        if (moveCount > 5) {
+        // After 8 moves, make it easier to catch
+        if (moveCount > 8) {
             newX = 50;
             newY = 50;
         }
