@@ -60,7 +60,10 @@ function createFloatingHearts() {
 // ============================================
 
 let gameActive = false;
-let moveCount = 0;
+let escapeCount = 0;
+const PANIC_RADIUS = 100; // Distance at which heart starts to panic
+const BASE_ESCAPE_DISTANCE = 60; // How far the heart moves away
+const MAX_ESCAPES = 10; // After this many escapes, heart becomes easier to catch
 
 /**
  * Initialize the shy heart game
@@ -69,12 +72,17 @@ function initGame() {
     const heart = document.getElementById('shyHeart');
     const gameArea = document.getElementById('gameArea');
     gameActive = true;
-    moveCount = 0;
+    escapeCount = 0;
     
-    // Position heart in a random spot (away from center)
-    const randomX = 30 + Math.random() * 40; // 30% to 70%
-    const randomY = 30 + Math.random() * 40; // 30% to 70%
-    positionHeart(randomX, randomY);
+    // Position heart in corners or edges (far from center where cursor usually is)
+    const positions = [
+        { x: 15, y: 15 },  // Top left
+        { x: 85, y: 15 },  // Top right
+        { x: 15, y: 85 },  // Bottom left
+        { x: 85, y: 85 },  // Bottom right
+    ];
+    const randomPos = positions[Math.floor(Math.random() * positions.length)];
+    positionHeart(randomPos.x, randomPos.y);
     
     // Add event listeners
     heart.addEventListener('click', catchHeart);
@@ -106,36 +114,43 @@ function moveHeartAway(e) {
     const cursorX = e.clientX - rect.left;
     const cursorY = e.clientY - rect.top;
     
-    // Get heart position
+    // Get heart center position
     const heartRect = heart.getBoundingClientRect();
-    const heartX = heartRect.left - rect.left + heartRect.width / 2;
-    const heartY = heartRect.top - rect.top + heartRect.height / 2;
+    const heartCenterX = heartRect.left - rect.left + heartRect.width / 2;
+    const heartCenterY = heartRect.top - rect.top + heartRect.height / 2;
     
-    // Calculate distance
+    // Calculate distance from cursor to heart center
     const distance = Math.sqrt(
-        Math.pow(cursorX - heartX, 2) + Math.pow(cursorY - heartY, 2)
+        Math.pow(cursorX - heartCenterX, 2) + Math.pow(cursorY - heartCenterY, 2)
     );
     
-    // If cursor is close enough, move heart away
-    if (distance < 150) {
-        moveCount++;
+    // Only move if cursor is within panic radius
+    if (distance < PANIC_RADIUS && distance > 0) {
+        escapeCount++;
         
-        // Calculate direction away from cursor
-        const angle = Math.atan2(heartY - cursorY, heartX - cursorX);
-        
-        // Calculate new position (move further away)
-        let newX = ((heartX + Math.cos(angle) * 120) / rect.width) * 100;
-        let newY = ((heartY + Math.sin(angle) * 120) / rect.height) * 100;
-        
-        // Keep within bounds (10% to 90%)
-        newX = Math.max(10, Math.min(90, newX));
-        newY = Math.max(10, Math.min(90, newY));
-        
-        // After 8 moves, make it easier to catch
-        if (moveCount > 8) {
-            newX = 50;
-            newY = 50;
+        // Calculate escape strength (reduces after many escapes)
+        let escapeStrength = BASE_ESCAPE_DISTANCE;
+        if (escapeCount > MAX_ESCAPES) {
+            escapeStrength = BASE_ESCAPE_DISTANCE * 0.3; // Much easier to catch
+        } else if (escapeCount > MAX_ESCAPES * 0.7) {
+            escapeStrength = BASE_ESCAPE_DISTANCE * 0.6; // Getting easier
         }
+        
+        // Calculate direction away from cursor (normalized)
+        const directionX = (heartCenterX - cursorX) / distance;
+        const directionY = (heartCenterY - cursorY) / distance;
+        
+        // Calculate new position in pixels
+        const newHeartX = heartCenterX + directionX * escapeStrength;
+        const newHeartY = heartCenterY + directionY * escapeStrength;
+        
+        // Convert to percentage
+        let newX = (newHeartX / rect.width) * 100;
+        let newY = (newHeartY / rect.height) * 100;
+        
+        // Clamp within bounds (5% to 95% for safety)
+        newX = Math.max(5, Math.min(95, newX));
+        newY = Math.max(5, Math.min(95, newY));
         
         positionHeart(newX, newY);
     }
