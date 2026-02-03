@@ -71,8 +71,10 @@ function initGame() {
     gameActive = true;
     moveCount = 0;
     
-    // Position heart in center initially
-    positionHeart(50, 50);
+    // Position heart in a random spot (away from center)
+    const randomX = 30 + Math.random() * 40; // 30% to 70%
+    const randomY = 30 + Math.random() * 40; // 30% to 70%
+    positionHeart(randomX, randomY);
     
     // Add event listeners
     heart.addEventListener('click', catchHeart);
