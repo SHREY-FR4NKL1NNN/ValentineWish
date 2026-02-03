@@ -61,8 +61,13 @@ function createFloatingHearts() {
 
 let gameActive = false;
 let escapeCount = 0;
+let heartVelocityX = 0;
+let heartVelocityY = 0;
+let animationFrameId = null;
+
 const PANIC_RADIUS = 100; // Distance at which heart starts to panic
-const BASE_ESCAPE_DISTANCE = 60; // How far the heart moves away
+const ESCAPE_FORCE = 15; // Initial escape speed
+const FRICTION = 0.92; // Slowdown factor (lower = slower deceleration)
 const MAX_ESCAPES = 10; // After this many escapes, heart becomes easier to catch
 
 /**
@@ -73,6 +78,8 @@ function initGame() {
     const gameArea = document.getElementById('gameArea');
     gameActive = true;
     escapeCount = 0;
+    heartVelocityX = 0;
+    heartVelocityY = 0;
     
     // Position heart in corners or edges (far from center where cursor usually is)
     const positions = [
@@ -83,6 +90,9 @@ function initGame() {
     ];
     const randomPos = positions[Math.floor(Math.random() * positions.length)];
     positionHeart(randomPos.x, randomPos.y);
+    
+    // Start animation loop
+    updateHeartPosition();
     
     // Add event listeners
     heart.addEventListener('click', catchHeart);
@@ -98,6 +108,63 @@ function positionHeart(x, y) {
     const heart = document.getElementById('shyHeart');
     heart.style.left = x + '%';
     heart.style.top = y + '%';
+}
+
+/**
+ * Update heart position based on velocity (called every frame)
+ */
+function updateHeartPosition() {
+    if (!gameActive) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        return;
+    }
+    
+    const heart = document.getElementById('shyHeart');
+    const gameArea = document.getElementById('gameArea');
+    const rect = gameArea.getBoundingClientRect();
+    
+    // Apply friction to slow down movement
+    heartVelocityX *= FRICTION;
+    heartVelocityY *= FRICTION;
+    
+    // Stop if velocity is very small
+    if (Math.abs(heartVelocityX) < 0.1) heartVelocityX = 0;
+    if (Math.abs(heartVelocityY) < 0.1) heartVelocityY = 0;
+    
+    // Get current position
+    const currentLeft = parseFloat(heart.style.left) || 50;
+    const currentTop = parseFloat(heart.style.top) || 50;
+    
+    // Calculate new position
+    const newX = currentLeft + (heartVelocityX / rect.width) * 100;
+    const newY = currentTop + (heartVelocityY / rect.height) * 100;
+    
+    // Clamp within bounds and bounce off edges
+    let clampedX = newX;
+    let clampedY = newY;
+    
+    if (newX < 5) {
+        clampedX = 5;
+        heartVelocityX = Math.abs(heartVelocityX) * 0.5; // Bounce back
+    } else if (newX > 95) {
+        clampedX = 95;
+        heartVelocityX = -Math.abs(heartVelocityX) * 0.5; // Bounce back
+    }
+    
+    if (newY < 5) {
+        clampedY = 5;
+        heartVelocityY = Math.abs(heartVelocityY) * 0.5; // Bounce back
+    } else if (newY > 95) {
+        clampedY = 95;
+        heartVelocityY = -Math.abs(heartVelocityY) * 0.5; // Bounce back
+    }
+    
+    positionHeart(clampedX, clampedY);
+    
+    // Continue animation loop
+    animationFrameId = requestAnimationFrame(updateHeartPosition);
 }
 
 /**
@@ -124,35 +191,33 @@ function moveHeartAway(e) {
         Math.pow(cursorX - heartCenterX, 2) + Math.pow(cursorY - heartCenterY, 2)
     );
     
-    // Only move if cursor is within panic radius
+    // Only add velocity if cursor is within panic radius
     if (distance < PANIC_RADIUS && distance > 0) {
         escapeCount++;
         
-        // Calculate escape strength (reduces after many escapes)
-        let escapeStrength = BASE_ESCAPE_DISTANCE;
+        // Calculate escape force (reduces after many escapes)
+        let escapeForce = ESCAPE_FORCE;
         if (escapeCount > MAX_ESCAPES) {
-            escapeStrength = BASE_ESCAPE_DISTANCE * 0.3; // Much easier to catch
+            escapeForce = ESCAPE_FORCE * 0.3; // Much easier to catch
         } else if (escapeCount > MAX_ESCAPES * 0.7) {
-            escapeStrength = BASE_ESCAPE_DISTANCE * 0.6; // Getting easier
+            escapeForce = ESCAPE_FORCE * 0.6; // Getting easier
         }
         
         // Calculate direction away from cursor (normalized)
         const directionX = (heartCenterX - cursorX) / distance;
         const directionY = (heartCenterY - cursorY) / distance;
         
-        // Calculate new position in pixels
-        const newHeartX = heartCenterX + directionX * escapeStrength;
-        const newHeartY = heartCenterY + directionY * escapeStrength;
+        // Add velocity in the escape direction
+        heartVelocityX += directionX * escapeForce;
+        heartVelocityY += directionY * escapeForce;
         
-        // Convert to percentage
-        let newX = (newHeartX / rect.width) * 100;
-        let newY = (newHeartY / rect.height) * 100;
-        
-        // Clamp within bounds (5% to 95% for safety)
-        newX = Math.max(5, Math.min(95, newX));
-        newY = Math.max(5, Math.min(95, newY));
-        
-        positionHeart(newX, newY);
+        // Cap max velocity
+        const maxVelocity = 25;
+        const velocityMagnitude = Math.sqrt(heartVelocityX * heartVelocityX + heartVelocityY * heartVelocityY);
+        if (velocityMagnitude > maxVelocity) {
+            heartVelocityX = (heartVelocityX / velocityMagnitude) * maxVelocity;
+            heartVelocityY = (heartVelocityY / velocityMagnitude) * maxVelocity;
+        }
     }
 }
 
@@ -175,6 +240,11 @@ function catchHeart(e) {
     
     e.stopPropagation();
     gameActive = false;
+    
+    // Stop animation loop
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
     
     const heart = document.getElementById('shyHeart');
     heart.classList.add('caught');
