@@ -262,9 +262,6 @@ h1 {
 .polaroid:nth-child(4) { animation-delay: 0.4s; }
 .polaroid:nth-child(5) { animation-delay: 0.5s; }
 .polaroid:nth-child(6) { animation-delay: 0.6s; }
-.polaroid:nth-child(7) { animation-delay: 0.7s; }
-.polaroid:nth-child(8) { animation-delay: 0.8s; }
-.polaroid:nth-child(9) { animation-delay: 0.9s; }
 
 @keyframes polaroidAppear {
     from {
@@ -291,15 +288,13 @@ h1 {
 }
 
 .polaroid:nth-child(1) img,
-.polaroid:nth-child(4) img,
-.polaroid:nth-child(5) img {
+.polaroid:nth-child(4) img {
     height: 220px;
 }
 
 @media (max-width: 768px) {
     .polaroid:nth-child(1) img,
-    .polaroid:nth-child(4) img,
-    .polaroid:nth-child(5) img {
+    .polaroid:nth-child(4) img {
         height: 180px;
     }
 }
