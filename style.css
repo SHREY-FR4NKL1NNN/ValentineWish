@@ -283,6 +283,18 @@ h1 {
     background: #f0f0f0;
 }
 
+.polaroid:nth-child(1) img,
+.polaroid:nth-child(4) img {
+    height: 250px;
+}
+
+@media (max-width: 768px) {
+    .polaroid:nth-child(1) img,
+    .polaroid:nth-child(4) img {
+        height: 200px;
+    }
+}
+
 /* ============================================
    FINAL SCREEN
    ============================================ */
