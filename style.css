@@ -1,0 +1,421 @@
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #ffeef8 0%, #e6f3ff 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #5a4a6a;
+}
+
+/* ============================================
+   FLOATING HEARTS BACKGROUND
+   ============================================ */
+.floating-hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.floating-heart {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.3;
+    animation: floatUp 8s infinite ease-in-out;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   SCREEN TRANSITIONS
+   ============================================ */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+    z-index: 10;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+.card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 50px 40px;
+    box-shadow: 0 20px 60px rgba(255, 182, 193, 0.3);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    animation: cardAppear 0.6s ease-out;
+}
+
+@keyframes cardAppear {
+    from {
+        transform: scale(0.9) translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #d4739e;
+}
+
+.main-text {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #5a4a6a;
+}
+
+.subtext {
+    font-size: 0.9rem;
+    color: #9b8aa8;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-primary {
+    background: linear-gradient(135deg, #ffb6d9 0%, #d4a5ff 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255, 182, 217, 0.4);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    margin: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 182, 217, 0.6);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* ============================================
+   GAME SCREEN
+   ============================================ */
+.game-container {
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.game-container h2 {
+    font-size: 2rem;
+    color: #d4739e;
+    margin-bottom: 10px;
+}
+
+.instruction {
+    font-size: 1rem;
+    color: #9b8aa8;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.game-area {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 30px;
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(255, 182, 193, 0.3);
+}
+
+.shy-heart {
+    position: absolute;
+    font-size: 60px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    user-select: none;
+    animation: heartPulse 1.5s infinite;
+}
+
+@keyframes heartPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.shy-heart.caught {
+    animation: heartCaught 0.6s ease-out;
+}
+
+@keyframes heartCaught {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(2) rotate(180deg);
+    }
+    100% {
+        transform: scale(5) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   PHOTO REVEAL SCREEN
+   ============================================ */
+.photo-container {
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+}
+
+.photo-container h2 {
+    font-size: 1.8rem;
+    color: #d4739e;
+    margin-bottom: 40px;
+}
+
+.polaroid-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.polaroid {
+    background: white;
+    padding: 15px;
+    padding-bottom: 50px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transform: rotate(var(--rotation));
+    transition: all 0.3s ease;
+    animation: polaroidAppear 0.6s ease-out backwards;
+}
+
+.polaroid:nth-child(1) { animation-delay: 0.1s; }
+.polaroid:nth-child(2) { animation-delay: 0.2s; }
+.polaroid:nth-child(3) { animation-delay: 0.3s; }
+.polaroid:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes polaroidAppear {
+    from {
+        opacity: 0;
+        transform: rotate(var(--rotation)) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(var(--rotation)) translateY(0);
+    }
+}
+
+.polaroid:hover {
+    transform: rotate(0deg) scale(1.05);
+    z-index: 10;
+}
+
+.polaroid img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    background: #f0f0f0;
+}
+
+/* ============================================
+   FINAL SCREEN
+   ============================================ */
+.confetti {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffb6d9;
+    top: -10px;
+    opacity: 0;
+    animation: confettiFall 3s linear infinite;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.final-card {
+    position: relative;
+    z-index: 10;
+}
+
+.big-question {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+    animation: questionBounce 1s ease-in-out infinite;
+}
+
+@keyframes questionBounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.final-message {
+    position: relative;
+    z-index: 10;
+    animation: finalAppear 0.8s ease-out;
+}
+
+@keyframes finalAppear {
+    from {
+        transform: scale(0.5) rotate(-10deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .card {
+        padding: 40px 30px;
+    }
+
+    .game-area {
+        height: 300px;
+    }
+
+    .shy-heart {
+        font-size: 50px;
+    }
+
+    .polaroid-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .polaroid img {
+        height: 150px;
+    }
+
+    .big-question {
+        font-size: 1.8rem;
+    }
+
+    .btn-primary {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 30px 20px;
+        border-radius: 20px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    .main-text {
+        font-size: 1rem;
+    }
+
+    .game-area {
+        height: 250px;
+    }
+
+    .polaroid-grid {
+        grid-template-columns: 1fr;
+    }
+}
